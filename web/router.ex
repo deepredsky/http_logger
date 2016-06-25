@@ -13,15 +13,15 @@ defmodule HttpLogger.Router do
     plug :accepts, ["json"]
   end
 
-  scope "/", HttpLogger do
-    pipe_through :browser # Use the default browser stack
-
-    get "*path", PageController, :index
-  end
-
   scope "/api", HttpLogger do
     pipe_through :api
     resources "/entries", LogEntryController, only: [:index, :show, :delete]
     delete "/entries", LogEntryController, :delete_all
+  end
+
+  scope "/", HttpLogger do
+    pipe_through :browser # Use the default browser stack
+
+    get "*path", PageController, :index
   end
 end
