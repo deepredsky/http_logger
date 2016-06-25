@@ -8,7 +8,7 @@ import {
   browserHistory, Router, Route, IndexRoute, Link, withRouter
 } from 'react-router'
 
-const API = 'http://localhost:4002/'
+const API = '/api/entries'
 
 let _entries = {}
 let _initCalled = false
