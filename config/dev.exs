@@ -11,13 +11,13 @@ config :http_logger, HttpLogger.Endpoint,
   debug_errors: true,
   code_reloader: true,
   check_origin: false,
-  watchers: []
+  watchers: [{Path.expand("webpack.dev.js"), []}]
 
 # Watch static and templates for browser reloading.
 config :http_logger, HttpLogger.Endpoint,
   live_reload: [
     patterns: [
-      ~r{priv/static/.*(js|css|png|jpeg|jpg|gif|svg)$},
+      # ~r{priv/static/.*(js|css|png|jpeg|jpg|gif|svg)$},
       ~r{priv/gettext/.*(po)$},
       ~r{web/views/.*(ex)$},
       ~r{web/templates/.*(eex)$}

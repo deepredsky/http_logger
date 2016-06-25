@@ -9,7 +9,8 @@ defmodule HttpLogger.Mixfile do
      compilers: [:phoenix, :gettext] ++ Mix.compilers,
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
-     deps: deps]
+     deps: deps,
+   aliases: ["phoenix.digest": "http_logger.digest"]]
   end
 
   # Configuration for the OTP application.
