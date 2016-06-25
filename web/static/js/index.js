@@ -329,12 +329,17 @@ const Request = React.createClass({
 const Pretty = React.createClass({
   render() {
     const body = this.props.body
-    const parsedBody = JSON.stringify(JSON.parse(body), null, 2)
+    var result;
+
+    if(!!body) {
+      const parsedBody = JSON.stringify(JSON.parse(body), null, 2)
+      result = <pre> {parsedBody} </pre>
+    }else {
+      result = <div/>
+    }
 
     return (
-      <pre>
-        {parsedBody}
-      </pre>
+      result
     );
   }
 })
