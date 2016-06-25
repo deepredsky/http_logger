@@ -76,3 +76,22 @@ form.link, form.button {
     border-bottom: 0;
   }
 }
+
+.entry {
+  padding: 0 !important;
+}
+
+.entry a{
+  display: block;
+  padding: 8px;
+  color: #ccc;
+}
+
+.entry a em {
+  font-style: normal;
+  color: #333;
+}
+
+.entry a.active{
+  background: #f5f5f5;
+}
