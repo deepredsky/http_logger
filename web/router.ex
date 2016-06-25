@@ -19,8 +19,9 @@ defmodule HttpLogger.Router do
     get "*path", PageController, :index
   end
 
-  # Other scopes may use custom stacks.
-  # scope "/api", HttpLogger do
-  #   pipe_through :api
-  # end
+  scope "/api", HttpLogger do
+    pipe_through :api
+    resources "/entries", LogEntryController, only: [:index, :show, :delete]
+    delete "/entries", LogEntryController, :delete_all
+  end
 end
