@@ -10,7 +10,8 @@ defmodule HttpLogger do
       # Start the endpoint when the application starts
       supervisor(HttpLogger.Endpoint, []),
       # Here you could define other workers and supervisors as children
-      # worker(HttpLogger.Worker, [arg1, arg2, arg3]),
+      worker(Proxy, [], function: :start_interceptor),
+      worker(LogEntry, [])
     ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html
