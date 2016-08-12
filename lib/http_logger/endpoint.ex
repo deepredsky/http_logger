@@ -36,4 +36,6 @@ defmodule HttpLogger.Endpoint do
     signing_salt: "nSiWkzX7"
 
   plug HttpLogger.Router
+
+  socket "/ws", HttpLogger.UserSocket
 end

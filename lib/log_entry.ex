@@ -23,11 +23,13 @@ defmodule LogEntry do
   end
 
   defp push_item(entries, entry) when length(entries) >= 50 do
+    HttpLogger.Endpoint.broadcast! "entries:new", "new:entry", entry
     [_head | rest] = entries
     [entry | rest ]
   end
 
   defp push_item(entries, entry) do
+    HttpLogger.Endpoint.broadcast! "entries:new", "new:entry", entry
     [entry | entries]
   end
 end

@@ -3,6 +3,7 @@ defmodule HttpLogger.UserSocket do
 
   ## Channels
   # channel "rooms:*", HttpLogger.RoomChannel
+  channel "entries:*", HttpLogger.EntriesChannel
 
   ## Transports
   transport :websocket, Phoenix.Transports.WebSocket

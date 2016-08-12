@@ -1,7 +1,4 @@
-// Phoenix' dependencies
-import '../../../deps/phoenix/priv/static/phoenix'
-import '../../../deps/phoenix_html/priv/static/phoenix_html'
-
+import { Socket } from "phoenix"
 import React from 'react'
 import { render, findDOMNode } from 'react-dom'
 import {
@@ -15,7 +12,6 @@ let _initCalled = false
 let _changeListeners = []
 
 const EntryStore = {
-
   init: function () {
     if (_initCalled)
       return
@@ -33,12 +29,6 @@ const EntryStore = {
     })
   },
 
-  removeContact: function (id, cb) {
-    deleteJSON(API + '/' + id, cb)
-    delete _entries[id]
-    EntryStore.notifyChange()
-  },
-
   getEntries: function () {
     const array = []
 
@@ -48,8 +38,12 @@ const EntryStore = {
     return array
   },
 
-  getContact: function (id) {
-    return _entries[id]
+  getEntry: function(id) {
+    return _entries[id];
+  },
+
+  addNewEntry: function(item) {
+    _entries[item.id] = item
   },
 
   notifyChange: function () {
@@ -67,7 +61,6 @@ const EntryStore = {
       return listener !== l
     })
   }
-
 }
 
 function getJSON(url, cb) {
@@ -105,8 +98,7 @@ function deleteJSON(url, cb) {
 const App = React.createClass({
   getInitialState() {
     return {
-      entries: EntryStore.getEntries(),
-      loading: true
+      entries: {}
     }
   },
 
@@ -123,17 +115,51 @@ const App = React.createClass({
   },
 
   updateEntries() {
-    if (!this.isMounted())
-      return
-
     this.setState({
       entries: EntryStore.getEntries(),
       loading: false
     })
   },
 
+  componentDidMount() {
+    this.serverRequest = getJSON(API, function (err, result) {
+      result.forEach(function (item) {
+        if(item.id) {
+          _entries[item.id] = item
+        }
+      })
+      this.setState({
+        entries: _entries
+      });
+    }.bind(this));
+    this.subscribeToNewEntries()
+  },
+
+  subscribeToNewEntries() {
+    let socket = new Socket("/ws")
+    socket.connect()
+    let channel = socket.channel("entries:new", {})
+    channel.join().receive("ok", chan => {
+      console.log("joined")
+    })
+    channel.on("new:entry", entry => {
+      this.addNewEntry(entry)
+    })
+  },
+  addNewEntry(entry) {
+    let entries = this.state.entries
+    entries[entry.id] = entry
+    EntryStore.addNewEntry(entry)
+    this.setState({
+      entries: entries
+    })
+  },
+
   render() {
-    const entries = this.state.entries.map(function (item) {
+    const entries = this.state.entries || {}
+
+    const rows = Object.keys(entries || {}).map(function(key) {
+      var item = entries[key]
       return (
         <tr key={item.id}>
           <td className="entry">
@@ -154,7 +180,7 @@ const App = React.createClass({
           <h2>All Requests</h2>
           <table className="table table-hover">
             <tbody>
-              {entries}
+              {rows}
             </tbody>
           </table>
         </div>
@@ -172,14 +198,17 @@ const Index = React.createClass({
   }
 })
 
-const Contact = withRouter(
+const Entry = withRouter(
   React.createClass({
 
     getStateFromStore(props) {
       const { id } = props ? props.params : this.props.params
 
+      console.log(id)
+      console.log(EntryStore.getEntry(id))
+
       return {
-        entry: EntryStore.getContact(id)
+        entry: EntryStore.getEntry(id)
       }
     },
 
@@ -188,28 +217,19 @@ const Contact = withRouter(
     },
 
     componentDidMount() {
-      EntryStore.addChangeListener(this.updateContact)
+      EntryStore.addChangeListener(this.updateEntry)
     },
 
     componentWillUnmount() {
-      EntryStore.removeChangeListener(this.updateContact)
+      EntryStore.removeChangeListener(this.updateEntry)
     },
 
     componentWillReceiveProps(nextProps) {
       this.setState(this.getStateFromStore(nextProps))
     },
 
-    updateContact() {
-      if (!this.isMounted())
-        return
-
+    updateEntry() {
       this.setState(this.getStateFromStore())
-    },
-
-    destroy() {
-      const { id } = this.props.params
-      EntryStore.removeContact(id)
-      this.props.router.push('/')
     },
 
     render() {
@@ -303,7 +323,7 @@ const Tabs = React.createClass({
 
 const Request = React.createClass({
   render() {
-    var req = this.props.request;
+    var req = this.props.request || {};
     return (
       <div>
         <h3 className="wrapped">
@@ -346,7 +366,7 @@ const Pretty = React.createClass({
 
 const Response = React.createClass({
   render() {
-    const resp = this.props.response;
+    const resp = this.props.response || {};
     return (
       <div>
         <h3 className={resp.status}>{resp.status}</h3>
@@ -380,7 +400,7 @@ render((
   <Router history={browserHistory}>
     <Route path="/" component={App}>
       <IndexRoute component={Index} />
-      <Route path="entries/:id" component={Contact} />
+      <Route path="entries/:id" component={Entry} />
       <Route path="*" component={NotFound} />
     </Route>
   </Router>
