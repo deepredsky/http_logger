@@ -60,6 +60,14 @@ const EntryStore = {
     _changeListeners = _changeListeners.filter(function (l) {
       return listener !== l
     })
+  },
+
+  clearAll: function () {
+    deleteJSON(API, function() {
+      _entries = {}
+
+      EntryStore.notifyChange()
+    })
   }
 }
 
@@ -155,6 +163,11 @@ const App = React.createClass({
     })
   },
 
+  clearHandler() {
+    EntryStore.clearAll();
+    this.updateEntries();
+  },
+
   render() {
     const entries = this.state.entries || {}
 
@@ -178,6 +191,9 @@ const App = React.createClass({
       <div className="row">
         <div className="col-md-4">
           <h2>All Requests</h2>
+
+          <button onClick={()=>this.clearHandler()}>clear</button>
+
           <table className="table table-hover">
             <tbody>
               {rows}

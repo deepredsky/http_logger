@@ -7,6 +7,6 @@ defmodule HttpLogger.LogEntryController do
 
   def delete_all(conn, _params) do
     LogEntry.reset
-    render conn, "index.json", LogEntry.all
+    render conn, "index.json", log_entries: LogEntry.all
   end
 end
