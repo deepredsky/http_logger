@@ -251,6 +251,7 @@ const Entry = withRouter(
     render() {
       const entry = this.state.entry || {}
 
+      if (Object.keys(entry).length !== 0) {
       return (
         <div className="entry-detail">
           <div className="row">
@@ -262,6 +263,12 @@ const Entry = withRouter(
           <Response response={entry.response}/>
         </div>
       )
+      } else {
+        return (
+        <div className="entry-detail">
+        </div>
+        )
+      }
     }
   })
 )
